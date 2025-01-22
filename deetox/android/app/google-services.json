@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "176725287363",
+    "project_id": "deetox-c3dd9",
+    "storage_bucket": "deetox-c3dd9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176725287363:android:b29cad600fc1c94efc5d76",
+        "android_client_info": {
+          "package_name": "com.example.deetox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr2er-wWLA0seHznIFI0Zv39W70UXKF1Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
