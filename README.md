@@ -13,6 +13,11 @@ Deetox is an open-source mobile app with the goal of democratizing "class"—phi
 - **Daily Lesson Notifications**: Timely reminders for engaging with new lessons.
 - **Content Generation Pipeline**: Automating lesson creation using web scraping and LLMs.
 - **Lesson Page Redesign**: Improved UI/UX for a more immersive learning experience.
+- **Mini-Courses & Challenges**: Structured lesson paths to provide goal-oriented learning experiences.
+
+### Future Features
+- **Community & Social Features**: Users will be able to discuss daily lessons, share insights, and engage in meaningful conversations on philosophy and literature.
+- **Expanded Mini-Courses**: Lessons will be structured into thematic sessions rather than an endless series, providing a more engaging learning journey.
 
 ## Tech Stack
 - **Frontend**: Flutter (Android & iOS)
