@@ -95,92 +95,12 @@ final List<Map<String, dynamic>> jsonData = [
     }
   },
   {
-    "lesson_id": "lesson5",
-    "topic": "Art",
-    "title": "The Basics of Composition",
-    "description": "Learn about the principles of visual composition in art.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Composition refers to how elements are arranged within a piece of art. The rule of thirds, balance, and symmetry are key concepts in visual art.",
-      "questions": [
-        {
-          "question": "What is the rule of thirds in visual composition?",
-          "options": ["Dividing the canvas into three equal parts horizontally", "Placing the subject in the center", "Using only three colors", "Creating a symmetrical composition"],
-          "correct_answer": "Dividing the canvas into three equal parts horizontally"
-        },
-        {
-          "question": "Which element is essential for creating balance in a composition?",
-          "options": ["Symmetry", "Contrast", "Proportion", "All of the above"],
-          "correct_answer": "All of the above"
-        }
-      ]
-    }
-  },
-  {
-    "lesson_id": "lesson6",
-    "topic": "Music",
-    "title": "Rhythm and Meter in Music",
-    "description": "Understand the importance of rhythm and meter in creating music.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Rhythm refers to the timing of notes, while meter organizes beats into regular patterns. Together, they shape the groove of music.",
-      "questions": [
-        {
-          "question": "What is a common time signature in music?",
-          "options": ["4/4", "3/4", "2/4", "All of the above"],
-          "correct_answer": "All of the above"
-        },
-        {
-          "question": "What does the term 'tempo' refer to in music?",
-          "options": ["Pitch", "Speed", "Rhythm", "Volume"],
-          "correct_answer": "Speed"
-        }
-      ]
-    }
-  },
-  {
-    "lesson_id": "lesson7",
-    "topic": "Literature",
-    "title": "Symbolism in Literature",
-    "description": "Learn how symbols add deeper meaning to literature.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Symbolism involves using symbols to represent ideas and themes. Common symbols in literature include light, darkness, and animals.",
-      "questions": [
-        {
-          "question": "What does the color white often symbolize in literature?",
-          "options": ["Purity", "Evil", "Despair", "Joy"],
-          "correct_answer": "Purity"
-        },
-        {
-          "question": "Which of these is an example of symbolism in literature?",
-          "options": ["A bird representing freedom", "A house representing a family", "A tree representing life", "All of the above"],
-          "correct_answer": "All of the above"
-        }
-      ]
-    }
-  },
-  {
     "lesson_id": "lesson8",
-    "topic": "Philosophy",
+    "topic": "Journaling",
     "title": "The Philosophy of Mind",
-    "description": "Delve into the concept of consciousness and the mind-body problem.",
+    "description": "Explore your thoughts and feelings through journaling.",
     "type": "quiz",
-    "lesson": {
-      "content": "The philosophy of mind explores the nature of consciousness and the relationship between the mind and body. Key questions include: How do we experience the world?",
-      "questions": [
-        {
-          "question": "What is dualism in philosophy of mind?",
-          "options": ["Mind and body are separate", "Mind and body are the same", "The mind is not real", "The body is the only reality"],
-          "correct_answer": "Mind and body are separate"
-        },
-        {
-          "question": "Which philosopher is famous for discussing the mind-body problem?",
-          "options": ["Descartes", "Nietzsche", "Plato", "Socrates"],
-          "correct_answer": "Descartes"
-        }
-      ]
-    }
+    "lesson": {}
   },
 ];
 
@@ -193,12 +113,30 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
-  final PageController _calendarController = PageController(initialPage: 1);
-  DateTime selectedDate = DateTime.now();
+  late PageController _calendarController;
+  late DateTime _baseMonth;
+  final int _initialPage = 1;
+
   DateTime displayedMonth = DateTime.now();
+  DateTime selectedDate = DateTime.now();
   String? selectedTopic;
   int currentTopicIndex = 0;
   int streak = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    _baseMonth = DateTime.now();
+    displayedMonth = _baseMonth;
+    _calendarController = PageController(initialPage: _initialPage);
+  }
+
+  @override
+  void dispose() {
+    _calendarController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   String _getStreakMessage() {
     if (streak > 0) {
@@ -294,6 +232,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Display the current year and month.
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -318,6 +257,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 40),
+          // Weekdays row.
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20),
             decoration: const BoxDecoration(
@@ -346,17 +286,18 @@ class _HomePageState extends State<HomePage> {
               onPageChanged: (index) {
                 setState(() {
                   displayedMonth = DateTime(
-                    displayedMonth.year,
-                    displayedMonth.month + (index - 1),
+                    _baseMonth.year,
+                    _baseMonth.month + (index - _initialPage),
                   );
                 });
               },
-              itemBuilder: (context, index) => _buildCalendarGrid(
-                DateTime(
-                  displayedMonth.year,
-                  displayedMonth.month + (index - 1),
-                ),
-              ),
+              itemBuilder: (context, index) {
+                DateTime monthToShow = DateTime(
+                  _baseMonth.year,
+                  _baseMonth.month + (index - _initialPage),
+                );
+                return _buildCalendarGrid(monthToShow);
+              },
             ),
           ),
         ],
@@ -376,7 +317,7 @@ class _HomePageState extends State<HomePage> {
         final firstDay = DateTime(month.year, month.month, 1);
         final firstDayOffset = firstDay.weekday % 7;
         final day = index - firstDayOffset + 1;
-        
+
         if (day < 1 || day > DateTime(month.year, month.month + 1, 0).day) {
           return const SizedBox();
         }
@@ -401,7 +342,7 @@ class _HomePageState extends State<HomePage> {
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               border: Border.all(
-                color: isSelected ? Color(0xFF282828) : Colors.transparent,
+                color: isSelected ? const Color(0xFF282828) : Colors.transparent,
                 width: 0.5,
               ),
             ),
@@ -410,7 +351,7 @@ class _HomePageState extends State<HomePage> {
                 day.toString(),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isSelected ? Color(0xFF282828) : Color(0xFF282828),
+                  color: const Color(0xFF282828),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -423,7 +364,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildLessonSelection() {
     final currentLesson = jsonData[currentTopicIndex];
-    
+
     return Container(
       height: MediaQuery.of(context).size.height,
       padding: const EdgeInsets.all(40),
@@ -521,7 +462,7 @@ class _HomePageState extends State<HomePage> {
           Container(
             width: double.infinity,
             height: 48,
-            color: Color(0xFF282828),
+            color: const Color(0xFF282828),
             child: TextButton(
               onPressed: () {
                 Navigator.push(
@@ -529,7 +470,7 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(
                     builder: (context) => selectedTopic == 'Journaling'
                         ? const JournalingPage()
-                        : const JournalingPage(),
+                        : ChallengePage(jsonData: jsonData[currentTopicIndex]),
                   ),
                 );
               },
