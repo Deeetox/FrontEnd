@@ -72,6 +72,8 @@ flutter:
     - assets/moon_surface.jpg
     - assets/lesson_placeholder.png
     - assets/overlay_placeholder.jpg
+    - assets\understanding_colors_page1.png
+    - assets\understanding_colors_page2.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
