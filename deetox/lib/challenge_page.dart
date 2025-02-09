@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart'; // Import your HomePage
 
 class ChallengePage extends StatefulWidget {
   final Map<String, dynamic> jsonData;
@@ -10,209 +11,204 @@ class ChallengePage extends StatefulWidget {
 }
 
 class _ChallengePageState extends State<ChallengePage> {
-  int currentQuestionIndex = 0;
-  Map<int, String> userAnswers = {};
+  late PageController _pageController;
+  int currentIndex = 0;
+  Map<int, bool> answeredQuestions = {};
 
   @override
-  Widget build(BuildContext context) {
-    final jsonData = widget.jsonData;
-    final lessonType = jsonData['type'];
-    final lesson = jsonData['lesson'];
-    final questions = lesson['questions'];
-    final questionData = questions[currentQuestionIndex];
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+  }
 
-    // Progress bar at the top
-    Widget buildProgressBar() {
-      double progress = (currentQuestionIndex + 1) / questions.length;
-      return Container(
-        width: double.infinity,
-        height: 3.0,
-        margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.orange, Colors.yellow]),
-          borderRadius: BorderRadius.circular(1.5),
-        ),
-        child: FractionallySizedBox(
-          alignment: Alignment.centerLeft,
-          widthFactor: progress,
-          child: Container(color: Colors.orange),
-        ),
-      );
-    }
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
-    // Introductory lesson content
-    Widget buildLessonContent() {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Text(
-          lesson['content'],
-          style: TextStyle(
-            fontSize: 16,
-            height: 1.5,
-            color: Color(0xFF363B44),
-          ),
+  // Build lesson content as full-screen images
+  Widget buildLessonContent(String imagePath) {
+    return GestureDetector(
+      onTapDown: (details) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        if (details.localPosition.dx < screenWidth / 2) {
+          // Tap left
+          if (currentIndex > 0) {
+            _pageController.previousPage(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        } else {
+          // Tap right
+          if (currentIndex < widget.jsonData['lesson_content'].length + widget.jsonData['quiz'].length - 1) {
+            _pageController.nextPage(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        }
+      },
+      child: Center(
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    // Quiz type questions (multiple choice)
-    Widget buildQuizContent() {
-      return Column(
+  // Build quiz content with immediate feedback
+  Widget buildQuizContent(String question, List<String> choices, int correctAnswerIndex, int questionIndex) {
+    return Container(
+      color: Color(0xFFF9F6EF), // Beige or light gray background
+      padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 16.0), // Margins for spacing
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Spacer to position question at ~40% of the screen height
+          Spacer(flex: 5),
+
+          // Question Text
           Text(
-            questionData['question'],
+            question,
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF363B44),
+              fontSize: 60,
+              fontWeight: FontWeight.w700, // Increased weight
+              height: 0.9, // Reduced line spacing further
+              color: Color(0xFF222021),
+            ),
+            textAlign: TextAlign.left,
+          ),
+
+          // Horizontal Line Under Question
+          SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.3, // 30% of screen width
+              height: 3, // Thickness of the line
+              color: Color(0xFF222021),
             ),
           ),
-          SizedBox(height: 16.0),
-          ...questionData['options'].map<Widget>((option) {
+
+          // Spacer between question and answers
+          SizedBox(height: 24),
+
+          // Answer Choices
+          ...choices.asMap().entries.map((entry) {
+            final index = entry.key;
+            final choice = entry.value;
+
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  userAnswers[currentQuestionIndex] = option;
+                  answeredQuestions[questionIndex] = true;
                 });
+
+                final isCorrect = index == correctAnswerIndex;
+
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    backgroundColor: Color(0xFFF9F6EF),
+                    title: Text(
+                      isCorrect ? "Correct!" : "Incorrect",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isCorrect ? Colors.green : Colors.red,
+                      ),
+                    ),
+                    content: Text(
+                      isCorrect
+                          ? "You selected the correct answer."
+                          : "The correct answer is ${choices[correctAnswerIndex]}.",
+                      style: TextStyle(fontSize: 18, color: Colors.black87),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+
+                          if (currentIndex < widget.jsonData['lesson_content'].length + widget.jsonData['quiz'].length - 1) {
+                            _pageController.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          } else if (answeredQuestions.length == widget.jsonData['quiz'].length) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (_) => HomePage()),
+                            );
+                          }
+                        },
+                        child: Text("Next", style: TextStyle(fontSize: 18)),
+                      ),
+                    ],
+                  ),
+                );
               },
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: userAnswers[currentQuestionIndex] == option
-                      ? Colors.orangeAccent.withAlpha(150)
-                      : Color(0xFFF1EAE0),
-                  border: Border.all(
-                    color: userAnswers[currentQuestionIndex] == option
-                        ? Colors.orange
-                        : Colors.grey.shade300,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  option,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF363B44),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Numbering for each choice
+                    Text(
+                      "${index + 1}. ",
+                      style: TextStyle(fontSize: 18, color: Color(0xFF222021)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        choice,
+                        style: TextStyle(fontSize: 18, color: Color(0xFF222021)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
           }).toList(),
-        ],
-      );
-    }
 
-    // Open-ended questions
-    Widget buildOpenEndedContent() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            questionData['question'],
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF363B44),
-            ),
-          ),
-          SizedBox(height: 16.0),
-          TextField(
-            onChanged: (value) {
-              userAnswers[currentQuestionIndex] = value;
-            },
-            decoration: InputDecoration(
-              hintText: "Type your answer here...",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              filled: true,
-              fillColor: Color(0xFFF1EAE0),
-            ),
-            maxLines: 5,
-          ),
+          // Spacer to push content upwards
+          Spacer(flex: 6),
         ],
-      );
-    }
+      ),
+    );
+  }
 
-    // Determine the type of question to render
-    Widget buildQuestionContent() {
-      return lessonType == "quiz" ? buildQuizContent() : buildOpenEndedContent();
-    }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final lessonContent = widget.jsonData['lesson_content'] as List<String>;
+    final quiz = widget.jsonData['quiz'] as Map<String, dynamic>;
+
+    // Combine lesson pages and quiz pages into one list
+    final pages = [
+      ...lessonContent.map((imagePath) => buildLessonContent(imagePath)).toList(),
+      ...quiz.entries.map((entry) {
+        int questionIndex = lessonContent.length + quiz.keys.toList().indexOf(entry.key);
+        return buildQuizContent(entry.key, entry.value[0], entry.value[1], questionIndex);
+      }).toList(),
+    ];
 
     return Scaffold(
-      backgroundColor: Color(0xFFF1EAE0),
-      appBar: AppBar(
-        title: Text(jsonData['title']),
-        backgroundColor: Colors.orange,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              buildProgressBar(),
-              SizedBox(height: 20.0),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildLessonContent(),
-                      buildQuestionContent(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              onPressed: currentQuestionIndex > 0
-                  ? () {
-                      setState(() {
-                        currentQuestionIndex--;
-                      });
-                    }
-                  : null,
-              child: Text("Back"),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              onPressed: currentQuestionIndex < questions.length - 1
-                  ? () {
-                      setState(() {
-                        currentQuestionIndex++;
-                      });
-                    }
-                  : () {
-                      // Submit answers logic
-                      print(userAnswers); // Example: Output user's answers
-                    },
-              child: Text(
-                  currentQuestionIndex < questions.length - 1 ? "Next" : "Submit"),
-            ),
-          ],
-        ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: pages.length,
+        physics:
+            currentIndex >= lessonContent.length ? NeverScrollableScrollPhysics() : null,
+        onPageChanged: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) => pages[index],
       ),
     );
   }

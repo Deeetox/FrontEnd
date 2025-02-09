@@ -9,100 +9,83 @@ final List<Map<String, dynamic>> jsonData = [
   {
     "lesson_id": "lesson1",
     "topic": "Art",
-    "title": "Understanding Colors",
-    "description": "Learn how colors can affect emotions.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Colors can evoke emotions and set tones. Blue symbolizes calm, while red conveys urgency.",
-      "questions": [
-        {
-          "question": "What color is a mix of blue and yellow?",
-          "options": ["Green", "Purple", "Orange", "Pink"],
-          "correct_answer": "Green"
-        },
-        {
-          "question": "What does red often symbolize?",
-          "options": ["Peace", "Urgency", "Sadness", "Happiness"],
-          "correct_answer": "Urgency"
-        }
-      ]
+    "lesson_title": "Understanding Colors",
+    "type": "lesson_quiz",
+    "description": "Learn more about the psychology of colors and how they can influence emotions.",
+    "lesson_content": [
+      "assets/understanding_colors_page1.png",
+      "assets/understanding_colors_page2.png"
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson2",
     "topic": "Music",
-    "title": "The Evolution of Sound",
-    "description": "Explore how music has evolved over the centuries.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Music has changed from classical compositions to modern beats. Understanding this evolution helps us appreciate music more deeply.",
-      "questions": [
-        {
-          "question": "Who is considered the father of modern classical music?",
-          "options": ["Beethoven", "Mozart", "Bach", "Chopin"],
-          "correct_answer": "Beethoven"
-        },
-        {
-          "question": "Which of these is a modern genre?",
-          "options": ["Classical", "Jazz", "Rock", "Opera"],
-          "correct_answer": "Rock"
-        }
-      ]
+    "lesson_title": "The Evolution of Sound",
+    "type": "lesson_quiz",
+    "description": "Explore the history of music and its impact on culture and society.",
+    "lesson_content": [
+      "assets/evolution_of_sound_page1.png",
+      "assets/evolution_of_sound_page2.png"
+    ],
+    "quiz": {
+      "Who is considered the father of modern classical music?": [["Beethoven", "Mozart", "Bach", "Chopin"], 0],
+      "Which of these is a modern genre?": [["Classical", "Jazz", "Rock", "Opera"], 2]
     }
   },
   {
     "lesson_id": "lesson3",
     "topic": "Literature",
-    "title": "The Art of Storytelling",
-    "description": "Learn about the key elements of storytelling and narrative techniques.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Storytelling is a powerful tool for conveying messages, emotions, and ideas. Important elements include plot structure, character development, and setting.",
-      "questions": [
-        {
-          "question": "What is the central element of any story?",
-          "options": ["Plot", "Characters", "Theme", "Setting"],
-          "correct_answer": "Plot"
-        },
-        {
-          "question": "Which of these is a common storytelling technique?",
-          "options": ["Flashbacks", "Foreshadowing", "Monologue", "All of the above"],
-          "correct_answer": "All of the above"
-        }
-      ]
+    "lesson_title": "The Art of Storytelling",
+    "type": "lesson_quiz",
+    "description": "Discover the elements of storytelling and how narratives shape our understanding of the world.",
+    "lesson_content": [
+      "assets/art_of_storytelling_page1.png",
+      "assets/art_of_storytelling_page2.png"
+    ],
+    "quiz": {
+      "What is the central element of any story?": [["Plot", "Characters", "Theme", "Setting"], 0],
+      "Which of these is a common storytelling technique?": [["Flashbacks", "Foreshadowing", "Monologue", "All of the above"], 3]
     }
   },
   {
     "lesson_id": "lesson4",
     "topic": "Philosophy",
-    "title": "Introduction to Ethics",
-    "description": "Explore fundamental ethical theories and dilemmas in philosophy.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Ethics examines what is right and wrong, and how humans should act. Key theories include utilitarianism, deontology, and virtue ethics.",
-      "questions": [
-        {
-          "question": "Which ethical theory focuses on the greatest good for the greatest number?",
-          "options": ["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"],
-          "correct_answer": "Utilitarianism"
-        },
-        {
-          "question": "Which ethical theory emphasizes duty and rules?",
-          "options": ["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"],
-          "correct_answer": "Deontology"
-        }
-      ]
+    "lesson_title": "Introduction to Ethics",
+    "type": "lesson_quiz",
+    "description": 
+        "Explore ethical theories and principles that guide human behavior and decision-making.",
+    "lesson_content": [
+      "assets/introduction_to_ethics_page1.png",
+      "assets/introduction_to_ethics_page2.png"
+    ],
+    "quiz": {
+      "Which ethical theory focuses on the greatest good for the greatest number?": [["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"], 0],
+      "Which ethical theory emphasizes duty and rules?": [["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"], 1]
     }
   },
   {
-    "lesson_id": "lesson8",
+    "lesson_id": "lesson5",
     "topic": "Journaling",
-    "title": "The Philosophy of Mind",
-    "description": "Explore your thoughts and feelings through journaling.",
-    "type": "quiz",
-    "lesson": {}
-  },
+    "lesson_title": "Reflective Writing",
+    "type": "journal",
+    "description": 
+        "Explore the benefits of journaling and how it can enhance self-awareness and mental health.",
+    "lesson_content": [
+      // Journaling lessons are represented as infographic pages for consistency
+      // No quiz content for journaling lessons
+      "assets/reflective_writing_page1.png",
+      "assets/reflective_writing_page2.png"
+    ],
+    // Journaling lessons do not include quizzes
+    // Keeping quiz empty for this type
+    "quiz": {}
+  }
 ];
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
