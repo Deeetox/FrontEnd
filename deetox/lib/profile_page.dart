@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -13,6 +14,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late Future<SharedPreferences> _prefsFuture;
   String? _selectedQuestion;
+  String? _userName;
   String _answer = '';
 
   // Updated menu options for app settings
@@ -39,6 +41,16 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _prefsFuture = SharedPreferences.getInstance();
     _loadPreferences();
+    _loadUserData();
+  }
+  
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        _userName = user.displayName ?? 'Guest';
+      });
+    }
   }
 
   Future<void> _loadPreferences() async {
@@ -151,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        ' User ',
+                        ' ${_userName ?? 'Guest'} ',
                         style: GoogleFonts.spaceMono(
                           color: const Color(0xFF282828),
                           fontSize: 18,

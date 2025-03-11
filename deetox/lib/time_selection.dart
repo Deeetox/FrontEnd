@@ -1,5 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'home_page.dart';
 
 class TimeSelectionPage extends StatefulWidget {
@@ -32,7 +37,7 @@ class _TimeSelectionPageState extends State<TimeSelectionPage>
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
-    );
+    )..addListener(() => setState(() {}));
 
     final now = DateTime.now();
     _selectedTime = DateTime(now.year, now.month, now.day, now.hour, now.minute);
@@ -59,27 +64,38 @@ class _TimeSelectionPageState extends State<TimeSelectionPage>
   void _updateColorAnimation({bool animate = true}) {
     final isNightTime = _checkIsNightTime(_selectedTime.hour);
 
+    // Only update if there's an actual change in night/day state
     if (isNightTime != _isNightTime) {
-      _isNightTime = isNightTime;
-      final beginColor = _currentBackgroundColor;
-      final endColor = isNightTime ? Colors.black : Colors.white;
+      final targetColor = isNightTime ? Colors.black : Colors.white;
 
-      _colorAnimation = ColorTween(begin: beginColor, end: endColor).animate(_animationController)
+      // If animation is already running, reverse it
+      if (_animationController.isAnimating) {
+        _animationController.stop();
+      }
+
+      // Create new tween with current color as starting point
+      _colorAnimation = ColorTween(
+        begin: _currentBackgroundColor,
+        end: targetColor,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ))
         ..addListener(() {
           setState(() {
-            // Update background color during animation
             _currentBackgroundColor = _colorAnimation.value;
           });
         });
 
+      _animationController.reset(); // Reset before starting
       if (animate) {
-        _animationController.forward(from: 0.0); // Always start from the beginning
+        _animationController.forward();
+      } else {
+        _animationController.value = 1.0; // Jump to end
       }
 
-      _textColor = endColor == Colors.black ? Colors.white : Colors.black;
-
-    } else {
-      _colorAnimation = AlwaysStoppedAnimation<Color?>(_currentBackgroundColor);
+      _isNightTime = isNightTime; // Update nighttime state
+      _textColor = targetColor == Colors.black ? Colors.white : Colors.black;
     }
   }
 
@@ -110,7 +126,6 @@ class _TimeSelectionPageState extends State<TimeSelectionPage>
       _selectedTime = DateTime(_selectedTime.year, _selectedTime.month, _selectedTime.day, hour, minute);
     }
   }
-
 
   String get _selectedTimeString {
     final hour = _selectedTime.hour % 12 == 0 ? 12 : _selectedTime.hour % 12;
@@ -155,7 +170,13 @@ class _TimeSelectionPageState extends State<TimeSelectionPage>
             centerTitle: true,
             actions: [
               TextButton(
-                onPressed: () {
+                onPressed: () async {
+                  // Save time locally
+                  await NotificationStorage.saveTime(_selectedTime);
+
+                  // Schedule notification
+                  await NotificationService.scheduleDailyNotification(_selectedTime);
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => HomePage()),
@@ -275,82 +296,167 @@ class _TimeSelectionPageState extends State<TimeSelectionPage>
                             ),
                           ),
                         ),
-                      ],
+                      ]
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  class NotificationService {
+    static final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
+    static Future<void> initialize() async {
+    // Initialize timezone database
+    tz.initializeTimeZones();
+
+    // Android initialization
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    // Initialize plugin
+    await _notifications.initialize(
+      const InitializationSettings(android: androidSettings),
     );
   }
-}
 
-class ClockPainter extends CustomPainter {
-  final double hourRotation;
-  final double minuteRotation;
-  final Color color;
-  final Color backgroundColor;
-  final double emptyCenterRadius;
-
-  ClockPainter({
-    required this.hourRotation,
-    required this.minuteRotation,
-    required this.color,
-    required this.backgroundColor,
-    required this.emptyCenterRadius,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width, size.height) / 2.2;
-
-    for (int i = 0; i < 12; i++) {
-      final angle = i * pi / 6;
-      final offset = Offset(
-        center.dx + radius * 0.9 * cos(angle),
-        center.dy + radius * 0.9 * sin(angle),
+    static Future<void> scheduleDailyNotification(DateTime time) async {
+      AndroidNotificationDetails androidPlatformChannelSpecifics =
+          const AndroidNotificationDetails(
+        'daily_reminder',
+        'Daily Reminders',
+        importance: Importance.high,
+        channelDescription: 'For showing daily reminders',
       );
-      canvas.drawCircle(offset, 2, Paint()..color = color);
+ 
+      // Check Android SDK version and add androidScheduleMode if needed
+      final deviceInfo = await DeviceInfoPlugin().androidInfo;
+      if (deviceInfo.version.sdkInt >= 31) {
+        androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+          'daily_reminder',
+          'Daily Reminders',
+          importance: Importance.high,
+          channelDescription: 'For showing daily reminders',
+        );
+      }
+
+      tz.TZDateTime scheduledTime = _nextTimeOfDay(time.hour, time.minute);
+
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        0,
+        'The Time Hath Come.',
+        "It's time!",
+        scheduledTime,
+        NotificationDetails(android: androidPlatformChannelSpecifics),
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
     }
 
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.rotate(hourRotation);
-    canvas.drawLine(
-      Offset(0, 0),
-      Offset(radius * 0.5, 0),
-      Paint()
-        ..color = color
-        ..strokeWidth = 8
-        ..strokeCap = StrokeCap.round,
-    );
-    canvas.restore();
-
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.rotate(minuteRotation);
-    canvas.drawLine(
-      Offset(0, 0),
-      Offset(radius * 0.7, 0),
-      Paint()
-        ..color = color
-        ..strokeWidth = 4
-        ..strokeCap = StrokeCap.round,
-    );
-    canvas.restore();
-
-    canvas.drawCircle(center, emptyCenterRadius, Paint()..color = backgroundColor);
+    static tz.TZDateTime _nextTimeOfDay(int hour, int minute) {
+      final now = tz.TZDateTime.now(tz.local);
+      var scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+      return scheduledDate;
+    }
   }
 
-  @override
-  bool shouldRepaint(covariant ClockPainter oldDelegate) {
-    return oldDelegate.hourRotation != hourRotation ||
-        oldDelegate.minuteRotation != minuteRotation ||
-        oldDelegate.backgroundColor != backgroundColor ||
-        oldDelegate.emptyCenterRadius != emptyCenterRadius;
+  class NotificationStorage {
+    static const _key = 'scheduled_time';
+
+    static Future<void> saveTime(DateTime time) async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_key, time.millisecondsSinceEpoch);
+    }
+
+    static Future<DateTime?> getTime() async {
+      final prefs = await SharedPreferences.getInstance();
+      final timestamp = prefs.getInt(_key);
+      return timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+    }
   }
-}
+
+  class ClockPainter extends CustomPainter {
+    final double hourRotation;
+    final double minuteRotation;
+    final Color color;
+    final Color backgroundColor;
+    final double emptyCenterRadius;
+
+    ClockPainter({
+      required this.hourRotation,
+      required this.minuteRotation,
+      required this.color,
+      required this.backgroundColor,
+      required this.emptyCenterRadius,
+    });
+
+    @override
+    void paint(Canvas canvas, Size size) {
+      final center = Offset(size.width / 2, size.height / 2);
+      final radius = min(size.width, size.height) / 2.2;
+
+      for (int i = 0; i < 12; i++) {
+        final angle = i * pi / 6;
+        final offset = Offset(
+          center.dx + radius * 0.9 * cos(angle),
+          center.dy + radius * 0.9 * sin(angle),
+        );
+        canvas.drawCircle(offset, 2, Paint()..color = color);
+      }
+
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(hourRotation);
+      canvas.drawLine(
+        Offset(0, 0),
+        Offset(radius * 0.5, 0),
+        Paint()
+          ..color = color
+          ..strokeWidth = 8
+          ..strokeCap = StrokeCap.round,
+      );
+      canvas.restore();
+
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(minuteRotation);
+      canvas.drawLine(
+        Offset(0, 0),
+        Offset(radius * 0.7, 0),
+        Paint()
+          ..color = color
+          ..strokeWidth = 4
+          ..strokeCap = StrokeCap.round,
+      );
+      canvas.restore();
+
+      canvas.drawCircle(center, emptyCenterRadius, Paint()..color = backgroundColor);
+    }
+
+    @override
+    bool shouldRepaint(covariant ClockPainter oldDelegate) {
+      return oldDelegate.hourRotation != hourRotation ||
+          oldDelegate.minuteRotation != minuteRotation ||
+          oldDelegate.backgroundColor != backgroundColor ||
+          oldDelegate.emptyCenterRadius != emptyCenterRadius;
+    }
+  }

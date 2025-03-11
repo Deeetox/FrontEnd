@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'time_selection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'home_page.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
 
@@ -12,6 +15,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService.initialize();
   runApp(const MyApp());
 }
 
@@ -26,7 +30,22 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF282828)),
         useMaterial3: true,
       ),
-      home: const WelcomeScreen(),
+      home: _handleAuthRedirect(),
+    );
+  }
+
+  Widget _handleAuthRedirect() {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        if (snapshot.hasData) {
+          return const HomePage();
+        }
+        return const WelcomeScreen();
+      },
     );
   }
 }

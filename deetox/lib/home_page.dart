@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'interest_selection.dart' show getSavedLesson;
 import 'challenge_page.dart';
 import 'journaling_page.dart';
 import 'profile_page.dart';
 
-final List<String> lessonTopics = ['Music', 'Literature', 'Art', 'Philosophy', 'Journaling'];
 final List<Map<String, dynamic>> jsonData = [
   {
     "lesson_id": "lesson1",
     "topic": "Art",
-    "lesson_title": "Understanding Colors",
+    "lesson_title": "What is Art? (1)",
     "type": "lesson_quiz",
-    "description": "Learn more about the psychology of colors and how they can influence emotions.",
+    "description": "Define art and its purposes (self-expression, communication, cultural preservation).",
     "lesson_content": [
-      "assets/understanding_colors_page1.png",
-      "assets/understanding_colors_page2.png"
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_5.png",
     ],
     "quiz": {
       "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
@@ -23,52 +27,78 @@ final List<Map<String, dynamic>> jsonData = [
   },
   {
     "lesson_id": "lesson2",
-    "topic": "Music",
-    "lesson_title": "The Evolution of Sound",
+    "topic": "Art",
+    "lesson_title": "What is Art? (2)",
     "type": "lesson_quiz",
-    "description": "Explore the history of music and its impact on culture and society.",
+    "description": "Explore different forms of art (painting, sculpture, architecture, etc.).",
     "lesson_content": [
-      "assets/evolution_of_sound_page1.png",
-      "assets/evolution_of_sound_page2.png"
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_5.png",
     ],
     "quiz": {
-      "Who is considered the father of modern classical music?": [["Beethoven", "Mozart", "Bach", "Chopin"], 0],
-      "Which of these is a modern genre?": [["Classical", "Jazz", "Rock", "Opera"], 2]
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson3",
-    "topic": "Literature",
-    "lesson_title": "The Art of Storytelling",
+    "topic": "Art",
+    "lesson_title": "What is Art? (3)",
     "type": "lesson_quiz",
-    "description": "Discover the elements of storytelling and how narratives shape our understanding of the world.",
+    "description": "Discuss the subjective nature of art—what makes something 'art'?",
     "lesson_content": [
-      "assets/art_of_storytelling_page1.png",
-      "assets/art_of_storytelling_page2.png"
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_5.png",
     ],
     "quiz": {
-      "What is the central element of any story?": [["Plot", "Characters", "Theme", "Setting"], 0],
-      "Which of these is a common storytelling technique?": [["Flashbacks", "Foreshadowing", "Monologue", "All of the above"], 3]
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson4",
-    "topic": "Philosophy",
-    "lesson_title": "Introduction to Ethics",
+    "topic": "Art",
+    "lesson_title": "What is Art? (4)",
     "type": "lesson_quiz",
-    "description": 
-        "Explore ethical theories and principles that guide human behavior and decision-making.",
+    "description": "Introduce aesthetics and basic art criticism.",
     "lesson_content": [
-      "assets/introduction_to_ethics_page1.png",
-      "assets/introduction_to_ethics_page2.png"
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_5.png",
     ],
     "quiz": {
-      "Which ethical theory focuses on the greatest good for the greatest number?": [["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"], 0],
-      "Which ethical theory emphasizes duty and rules?": [["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"], 1]
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson5",
+    "topic": "Art",
+    "lesson_title": "What is Art? (5)",
+    "type": "lesson_quiz",
+    "description": "Activity: Observe and describe a public domain artwork using sensory details.",
+    "lesson_content": [
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_5.png",
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
+    }
+  },
+  {
+    "lesson_id": "lesson6",
     "topic": "Journaling",
     "lesson_title": "Reflective Writing",
     "type": "journal",
@@ -86,15 +116,18 @@ final List<Map<String, dynamic>> jsonData = [
   }
 ];
 
-
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  String? _userName;
+  String? _selectedTopic;
+  DateTime? _lessonStartDate;
+
   final ScrollController _scrollController = ScrollController();
   late PageController _calendarController;
   late DateTime _baseMonth;
@@ -103,21 +136,82 @@ class _HomePageState extends State<HomePage> {
   DateTime displayedMonth = DateTime.now();
   DateTime selectedDate = DateTime.now();
   String? selectedTopic;
-  int currentTopicIndex = 0;
   int streak = 5;
+
+  late PageController _lessonController;
+  List<Map<String, dynamic>> _availableLessons = [];
+  int _currentLessonIndex = 0; // Use _currentLessonIndex instead of _currentLesson
 
   @override
   void initState() {
     super.initState();
+    _lessonController = PageController(initialPage: 0);
+    _loadUserData();
+    _loadLessonData();
     _baseMonth = DateTime.now();
     displayedMonth = _baseMonth;
     _calendarController = PageController(initialPage: _initialPage);
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        _userName = user.displayName ?? 'Guest';
+      });
+    }
+  }
+
+  Future<void> _loadLessonData() async {
+    final savedData = await getSavedLesson();
+    if (savedData.isNotEmpty) {
+      setState(() {
+        _selectedTopic = savedData['lesson'];
+        try {
+          _lessonStartDate = DateTime.parse(savedData['startDate']!);
+        } catch (e) {
+          print('Error parsing date: $e');
+          _lessonStartDate = DateTime.now();
+        }
+        _calculateAvailableLessons();
+      });
+    }
+  }
+
+  void _calculateAvailableLessons() {
+    List<Map<String, dynamic>> lessons = [];
+
+    if (_lessonStartDate != null) {
+      final difference = selectedDate.difference(_lessonStartDate!).inDays;
+
+      if (difference >= 0 && difference < 5) {
+        var topicLessons = jsonData.where((lesson) =>
+            _selectedTopic != null &&
+            lesson['lesson_title']
+                .toString()
+                .toLowerCase()
+                .contains(_selectedTopic!.toLowerCase())).toList();
+        if (topicLessons.isNotEmpty && topicLessons.length > difference) {
+          lessons.add(topicLessons[difference]);
+        }
+      }
+    }
+    lessons.addAll(jsonData.where((lesson) => lesson['topic'] == 'Journaling'));
+    print('Available Lessons: $lessons');
+
+    setState(() {
+      _availableLessons = lessons;
+      _currentLessonIndex = 0;
+      // Initialize the topic title
+      _updateTopicTitle();
+    });
   }
 
   @override
   void dispose() {
     _calendarController.dispose();
     _scrollController.dispose();
+    _lessonController.dispose();
     super.dispose();
   }
 
@@ -138,9 +232,9 @@ class _HomePageState extends State<HomePage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "Good Morning, [Name]!",
-                style: TextStyle(
+              Text(
+                "Good Morning, ${_userName ?? 'Guest'}!",
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.5,
@@ -215,7 +309,6 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Display the current year and month.
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -288,6 +381,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _handleDateSelection(DateTime newDate) {
+    setState(() {
+      selectedDate = newDate;
+      _calculateAvailableLessons();
+    });
+  }
+
   Widget _buildCalendarGrid(DateTime month) {
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -313,7 +413,7 @@ class _HomePageState extends State<HomePage> {
         return GestureDetector(
           onTap: () {
             setState(() {
-              selectedDate = currentDate;
+              _handleDateSelection(currentDate);
             });
             _scrollController.animateTo(
               MediaQuery.of(context).size.height * 2,
@@ -346,8 +446,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildLessonSelection() {
-    final currentLesson = jsonData[currentTopicIndex];
-
     return Container(
       height: MediaQuery.of(context).size.height,
       padding: const EdgeInsets.all(40),
@@ -377,11 +475,21 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              Text(
-                currentLesson['topic'].toString().toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Text(
+                    _availableLessons.isNotEmpty
+                        ? _availableLessons[_currentLessonIndex]['topic']
+                            .toString()
+                            .toUpperCase()
+                        : '',
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -391,53 +499,69 @@ class _HomePageState extends State<HomePage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.chevron_left),
-                onPressed: () {
-                  setState(() {
-                    currentTopicIndex = (currentTopicIndex - 1) % jsonData.length;
-                    selectedTopic = jsonData[currentTopicIndex]['topic'];
-                  });
-                },
+                onPressed: _availableLessons.isNotEmpty && _currentLessonIndex > 0
+                    ? () {
+                        _lessonController.previousPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    : null,
               ),
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Column(
-                    key: ValueKey<int>(currentTopicIndex),
-                    children: [
-                      Container(
-                        height: 400,
-                        width: 400,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          image: const DecorationImage(
-                            image: AssetImage('assets/lesson_placeholder.png'),
-                            fit: BoxFit.cover,
+                child: SizedBox(
+                  height: 400,
+                  child: PageView.builder(
+                    controller: _lessonController,
+                    itemCount: _availableLessons.length,
+                    itemBuilder: (context, index) {
+                      final lesson = _availableLessons[index];
+                      return Column(
+                        children: [
+                          Container(
+                            height: 300,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              image: const DecorationImage(
+                                image: AssetImage('assets/lesson_placeholder.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        currentLesson['description'],
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF282828).withOpacity(0.6),
-                          height: 1.8,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
+                          const SizedBox(height: 20),
+                          Text(
+                            lesson['description'],
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF282828).withOpacity(0.6),
+                              height: 1.8,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentLessonIndex = index;
+                        _updateTopicTitle(); // Call it here!
+                      });
+                    },
                   ),
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
-                onPressed: () {
-                  setState(() {
-                    currentTopicIndex = (currentTopicIndex + 1) % jsonData.length;
-                    selectedTopic = jsonData[currentTopicIndex]['topic'];
-                  });
-                },
+                onPressed: _availableLessons.isNotEmpty && _currentLessonIndex < _availableLessons.length - 1
+                    ? () {
+                        _lessonController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    : null,
               ),
             ],
           ),
@@ -451,9 +575,10 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => selectedTopic == 'Journaling'
+                    builder: (context) => _availableLessons.isNotEmpty &&
+                            _availableLessons[_currentLessonIndex]['topic'] == 'Journaling'
                         ? const JournalingPage()
-                        : ChallengePage(jsonData: jsonData[currentTopicIndex]),
+                        : ChallengePage(jsonData: _availableLessons[_currentLessonIndex]),
                   ),
                 );
               },
@@ -470,6 +595,20 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  void _updateTopicTitle() {
+    if (_availableLessons.isNotEmpty &&
+        _currentLessonIndex >= 0 &&
+        _currentLessonIndex < _availableLessons.length) {
+      setState(() {
+        selectedTopic = _availableLessons[_currentLessonIndex]['topic'];
+      });
+    } else {
+      setState(() {
+        selectedTopic = null;
+      });
+    }
   }
 
   @override
