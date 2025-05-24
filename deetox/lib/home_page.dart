@@ -1,204 +1,219 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'interest_selection.dart' show getSavedLesson;
 import 'challenge_page.dart';
 import 'journaling_page.dart';
 import 'profile_page.dart';
 
-final List<String> lessonTopics = ['Music', 'Literature', 'Art', 'Philosophy', 'Journaling'];
 final List<Map<String, dynamic>> jsonData = [
   {
     "lesson_id": "lesson1",
     "topic": "Art",
-    "title": "Understanding Colors",
-    "description": "Learn how colors can affect emotions.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Colors can evoke emotions and set tones. Blue symbolizes calm, while red conveys urgency.",
-      "questions": [
-        {
-          "question": "What color is a mix of blue and yellow?",
-          "options": ["Green", "Purple", "Orange", "Pink"],
-          "correct_answer": "Green"
-        },
-        {
-          "question": "What does red often symbolize?",
-          "options": ["Peace", "Urgency", "Sadness", "Happiness"],
-          "correct_answer": "Urgency"
-        }
-      ]
+    "lesson_title": "What is Art? (1)",
+    "type": "lesson_quiz",
+    "description": "Define art and its purposes (self-expression, communication, cultural preservation).",
+    "lesson_content": [
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_5.png",
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson2",
-    "topic": "Music",
-    "title": "The Evolution of Sound",
-    "description": "Explore how music has evolved over the centuries.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Music has changed from classical compositions to modern beats. Understanding this evolution helps us appreciate music more deeply.",
-      "questions": [
-        {
-          "question": "Who is considered the father of modern classical music?",
-          "options": ["Beethoven", "Mozart", "Bach", "Chopin"],
-          "correct_answer": "Beethoven"
-        },
-        {
-          "question": "Which of these is a modern genre?",
-          "options": ["Classical", "Jazz", "Rock", "Opera"],
-          "correct_answer": "Rock"
-        }
-      ]
+    "topic": "Art",
+    "lesson_title": "What is Art? (2)",
+    "type": "lesson_quiz",
+    "description": "Explore different forms of art (painting, sculpture, architecture, etc.).",
+    "lesson_content": [
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_5.png",
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson3",
-    "topic": "Literature",
-    "title": "The Art of Storytelling",
-    "description": "Learn about the key elements of storytelling and narrative techniques.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Storytelling is a powerful tool for conveying messages, emotions, and ideas. Important elements include plot structure, character development, and setting.",
-      "questions": [
-        {
-          "question": "What is the central element of any story?",
-          "options": ["Plot", "Characters", "Theme", "Setting"],
-          "correct_answer": "Plot"
-        },
-        {
-          "question": "Which of these is a common storytelling technique?",
-          "options": ["Flashbacks", "Foreshadowing", "Monologue", "All of the above"],
-          "correct_answer": "All of the above"
-        }
-      ]
+    "topic": "Art",
+    "lesson_title": "What is Art? (3)",
+    "type": "lesson_quiz",
+    "description": "Discuss the subjective nature of art—what makes something 'art'?",
+    "lesson_content": [
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_5.png",
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson4",
-    "topic": "Philosophy",
-    "title": "Introduction to Ethics",
-    "description": "Explore fundamental ethical theories and dilemmas in philosophy.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Ethics examines what is right and wrong, and how humans should act. Key theories include utilitarianism, deontology, and virtue ethics.",
-      "questions": [
-        {
-          "question": "Which ethical theory focuses on the greatest good for the greatest number?",
-          "options": ["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"],
-          "correct_answer": "Utilitarianism"
-        },
-        {
-          "question": "Which ethical theory emphasizes duty and rules?",
-          "options": ["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"],
-          "correct_answer": "Deontology"
-        }
-      ]
+    "topic": "Art",
+    "lesson_title": "What is Art? (4)",
+    "type": "lesson_quiz",
+    "description": "Introduce aesthetics and basic art criticism.",
+    "lesson_content": [
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_5.png",
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson5",
     "topic": "Art",
-    "title": "The Basics of Composition",
-    "description": "Learn about the principles of visual composition in art.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Composition refers to how elements are arranged within a piece of art. The rule of thirds, balance, and symmetry are key concepts in visual art.",
-      "questions": [
-        {
-          "question": "What is the rule of thirds in visual composition?",
-          "options": ["Dividing the canvas into three equal parts horizontally", "Placing the subject in the center", "Using only three colors", "Creating a symmetrical composition"],
-          "correct_answer": "Dividing the canvas into three equal parts horizontally"
-        },
-        {
-          "question": "Which element is essential for creating balance in a composition?",
-          "options": ["Symmetry", "Contrast", "Proportion", "All of the above"],
-          "correct_answer": "All of the above"
-        }
-      ]
+    "lesson_title": "What is Art? (5)",
+    "type": "lesson_quiz",
+    "description": "Activity: Observe and describe a public domain artwork using sensory details.",
+    "lesson_content": [
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_1.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_2.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_3.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_4.png",
+      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_5.png",
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
     }
   },
   {
     "lesson_id": "lesson6",
-    "topic": "Music",
-    "title": "Rhythm and Meter in Music",
-    "description": "Understand the importance of rhythm and meter in creating music.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Rhythm refers to the timing of notes, while meter organizes beats into regular patterns. Together, they shape the groove of music.",
-      "questions": [
-        {
-          "question": "What is a common time signature in music?",
-          "options": ["4/4", "3/4", "2/4", "All of the above"],
-          "correct_answer": "All of the above"
-        },
-        {
-          "question": "What does the term 'tempo' refer to in music?",
-          "options": ["Pitch", "Speed", "Rhythm", "Volume"],
-          "correct_answer": "Speed"
-        }
-      ]
-    }
-  },
-  {
-    "lesson_id": "lesson7",
-    "topic": "Literature",
-    "title": "Symbolism in Literature",
-    "description": "Learn how symbols add deeper meaning to literature.",
-    "type": "quiz",
-    "lesson": {
-      "content": "Symbolism involves using symbols to represent ideas and themes. Common symbols in literature include light, darkness, and animals.",
-      "questions": [
-        {
-          "question": "What does the color white often symbolize in literature?",
-          "options": ["Purity", "Evil", "Despair", "Joy"],
-          "correct_answer": "Purity"
-        },
-        {
-          "question": "Which of these is an example of symbolism in literature?",
-          "options": ["A bird representing freedom", "A house representing a family", "A tree representing life", "All of the above"],
-          "correct_answer": "All of the above"
-        }
-      ]
-    }
-  },
-  {
-    "lesson_id": "lesson8",
-    "topic": "Philosophy",
-    "title": "The Philosophy of Mind",
-    "description": "Delve into the concept of consciousness and the mind-body problem.",
-    "type": "quiz",
-    "lesson": {
-      "content": "The philosophy of mind explores the nature of consciousness and the relationship between the mind and body. Key questions include: How do we experience the world?",
-      "questions": [
-        {
-          "question": "What is dualism in philosophy of mind?",
-          "options": ["Mind and body are separate", "Mind and body are the same", "The mind is not real", "The body is the only reality"],
-          "correct_answer": "Mind and body are separate"
-        },
-        {
-          "question": "Which philosopher is famous for discussing the mind-body problem?",
-          "options": ["Descartes", "Nietzsche", "Plato", "Socrates"],
-          "correct_answer": "Descartes"
-        }
-      ]
-    }
-  },
+    "topic": "Journaling",
+    "lesson_title": "Reflective Writing",
+    "type": "journal",
+    "description": 
+        "Explore the benefits of journaling and how it can enhance self-awareness and mental health.",
+    "lesson_content": [
+      // Journaling lessons are represented as infographic pages for consistency
+      // No quiz content for journaling lessons
+      "assets/reflective_writing_page1.png",
+      "assets/reflective_writing_page2.png"
+    ],
+    // Journaling lessons do not include quizzes
+    // Keeping quiz empty for this type
+    "quiz": {}
+  }
 ];
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  String? _userName;
+  String? _selectedTopic;
+  DateTime? _lessonStartDate;
+
   final ScrollController _scrollController = ScrollController();
-  final PageController _calendarController = PageController(initialPage: 1);
-  DateTime selectedDate = DateTime.now();
+  late PageController _calendarController;
+  late DateTime _baseMonth;
+  final int _initialPage = 1;
+
   DateTime displayedMonth = DateTime.now();
+  DateTime selectedDate = DateTime.now();
   String? selectedTopic;
-  int currentTopicIndex = 0;
   int streak = 5;
+
+  late PageController _lessonController;
+  List<Map<String, dynamic>> _availableLessons = [];
+  int _currentLessonIndex = 0; // Use _currentLessonIndex instead of _currentLesson
+
+  @override
+  void initState() {
+    super.initState();
+    _lessonController = PageController(initialPage: 0);
+    _loadUserData();
+    _loadLessonData();
+    _baseMonth = DateTime.now();
+    displayedMonth = _baseMonth;
+    _calendarController = PageController(initialPage: _initialPage);
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        _userName = user.displayName ?? 'Guest';
+      });
+    }
+  }
+
+  Future<void> _loadLessonData() async {
+    final savedData = await getSavedLesson();
+    if (savedData.isNotEmpty) {
+      setState(() {
+        _selectedTopic = savedData['lesson'];
+        try {
+          _lessonStartDate = DateTime.parse(savedData['startDate']!);
+        } catch (e) {
+          print('Error parsing date: $e');
+          _lessonStartDate = DateTime.now();
+        }
+        _calculateAvailableLessons();
+      });
+    }
+  }
+
+  void _calculateAvailableLessons() {
+    List<Map<String, dynamic>> lessons = [];
+
+    if (_lessonStartDate != null) {
+      final difference = selectedDate.difference(_lessonStartDate!).inDays;
+
+      if (difference >= 0 && difference < 5) {
+        var topicLessons = jsonData.where((lesson) =>
+            _selectedTopic != null &&
+            lesson['lesson_title']
+                .toString()
+                .toLowerCase()
+                .contains(_selectedTopic!.toLowerCase())).toList();
+        if (topicLessons.isNotEmpty && topicLessons.length > difference) {
+          lessons.add(topicLessons[difference]);
+        }
+      }
+    }
+    lessons.addAll(jsonData.where((lesson) => lesson['topic'] == 'Journaling'));
+    print('Available Lessons: $lessons');
+
+    setState(() {
+      _availableLessons = lessons;
+      _currentLessonIndex = 0;
+      // Initialize the topic title
+      _updateTopicTitle();
+    });
+  }
+
+  @override
+  void dispose() {
+    _calendarController.dispose();
+    _scrollController.dispose();
+    _lessonController.dispose();
+    super.dispose();
+  }
 
   String _getStreakMessage() {
     if (streak > 0) {
@@ -217,9 +232,9 @@ class _HomePageState extends State<HomePage> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "Good Morning, [Name]!",
-                style: TextStyle(
+              Text(
+                "Good Morning, ${_userName ?? 'Guest'}!",
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.5,
@@ -318,6 +333,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 40),
+          // Weekdays row.
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20),
             decoration: const BoxDecoration(
@@ -346,22 +362,30 @@ class _HomePageState extends State<HomePage> {
               onPageChanged: (index) {
                 setState(() {
                   displayedMonth = DateTime(
-                    displayedMonth.year,
-                    displayedMonth.month + (index - 1),
+                    _baseMonth.year,
+                    _baseMonth.month + (index - _initialPage),
                   );
                 });
               },
-              itemBuilder: (context, index) => _buildCalendarGrid(
-                DateTime(
-                  displayedMonth.year,
-                  displayedMonth.month + (index - 1),
-                ),
-              ),
+              itemBuilder: (context, index) {
+                DateTime monthToShow = DateTime(
+                  _baseMonth.year,
+                  _baseMonth.month + (index - _initialPage),
+                );
+                return _buildCalendarGrid(monthToShow);
+              },
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _handleDateSelection(DateTime newDate) {
+    setState(() {
+      selectedDate = newDate;
+      _calculateAvailableLessons();
+    });
   }
 
   Widget _buildCalendarGrid(DateTime month) {
@@ -376,7 +400,7 @@ class _HomePageState extends State<HomePage> {
         final firstDay = DateTime(month.year, month.month, 1);
         final firstDayOffset = firstDay.weekday % 7;
         final day = index - firstDayOffset + 1;
-        
+
         if (day < 1 || day > DateTime(month.year, month.month + 1, 0).day) {
           return const SizedBox();
         }
@@ -389,7 +413,7 @@ class _HomePageState extends State<HomePage> {
         return GestureDetector(
           onTap: () {
             setState(() {
-              selectedDate = currentDate;
+              _handleDateSelection(currentDate);
             });
             _scrollController.animateTo(
               MediaQuery.of(context).size.height * 2,
@@ -401,7 +425,7 @@ class _HomePageState extends State<HomePage> {
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               border: Border.all(
-                color: isSelected ? Color(0xFF282828) : Colors.transparent,
+                color: isSelected ? const Color(0xFF282828) : Colors.transparent,
                 width: 0.5,
               ),
             ),
@@ -410,7 +434,7 @@ class _HomePageState extends State<HomePage> {
                 day.toString(),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isSelected ? Color(0xFF282828) : Color(0xFF282828),
+                  color: const Color(0xFF282828),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -422,8 +446,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildLessonSelection() {
-    final currentLesson = jsonData[currentTopicIndex];
-    
     return Container(
       height: MediaQuery.of(context).size.height,
       padding: const EdgeInsets.all(40),
@@ -453,11 +475,21 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              Text(
-                currentLesson['topic'].toString().toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Text(
+                    _availableLessons.isNotEmpty
+                        ? _availableLessons[_currentLessonIndex]['topic']
+                            .toString()
+                            .toUpperCase()
+                        : '',
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -467,53 +499,69 @@ class _HomePageState extends State<HomePage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.chevron_left),
-                onPressed: () {
-                  setState(() {
-                    currentTopicIndex = (currentTopicIndex - 1) % jsonData.length;
-                    selectedTopic = jsonData[currentTopicIndex]['topic'];
-                  });
-                },
+                onPressed: _availableLessons.isNotEmpty && _currentLessonIndex > 0
+                    ? () {
+                        _lessonController.previousPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    : null,
               ),
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Column(
-                    key: ValueKey<int>(currentTopicIndex),
-                    children: [
-                      Container(
-                        height: 400,
-                        width: 400,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          image: const DecorationImage(
-                            image: AssetImage('assets/lesson_placeholder.png'),
-                            fit: BoxFit.cover,
+                child: SizedBox(
+                  height: 400,
+                  child: PageView.builder(
+                    controller: _lessonController,
+                    itemCount: _availableLessons.length,
+                    itemBuilder: (context, index) {
+                      final lesson = _availableLessons[index];
+                      return Column(
+                        children: [
+                          Container(
+                            height: 300,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              image: const DecorationImage(
+                                image: AssetImage('assets/lesson_placeholder.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        currentLesson['description'],
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF282828).withOpacity(0.6),
-                          height: 1.8,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
+                          const SizedBox(height: 20),
+                          Text(
+                            lesson['description'],
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF282828).withOpacity(0.6),
+                              height: 1.8,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentLessonIndex = index;
+                        _updateTopicTitle(); // Call it here!
+                      });
+                    },
                   ),
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
-                onPressed: () {
-                  setState(() {
-                    currentTopicIndex = (currentTopicIndex + 1) % jsonData.length;
-                    selectedTopic = jsonData[currentTopicIndex]['topic'];
-                  });
-                },
+                onPressed: _availableLessons.isNotEmpty && _currentLessonIndex < _availableLessons.length - 1
+                    ? () {
+                        _lessonController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    : null,
               ),
             ],
           ),
@@ -521,15 +569,16 @@ class _HomePageState extends State<HomePage> {
           Container(
             width: double.infinity,
             height: 48,
-            color: Color(0xFF282828),
+            color: const Color(0xFF282828),
             child: TextButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => selectedTopic == 'Journaling'
+                    builder: (context) => _availableLessons.isNotEmpty &&
+                            _availableLessons[_currentLessonIndex]['topic'] == 'Journaling'
                         ? const JournalingPage()
-                        : const JournalingPage(),
+                        : ChallengePage(jsonData: _availableLessons[_currentLessonIndex]),
                   ),
                 );
               },
@@ -546,6 +595,20 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  void _updateTopicTitle() {
+    if (_availableLessons.isNotEmpty &&
+        _currentLessonIndex >= 0 &&
+        _currentLessonIndex < _availableLessons.length) {
+      setState(() {
+        selectedTopic = _availableLessons[_currentLessonIndex]['topic'];
+      });
+    } else {
+      setState(() {
+        selectedTopic = null;
+      });
+    }
   }
 
   @override
