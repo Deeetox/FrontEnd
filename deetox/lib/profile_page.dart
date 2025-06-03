@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as models;
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -17,13 +18,15 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _userName;
   String _answer = '';
 
-  // Updated menu options for app settings
+  // Appwrite client and account
+  late Client _client;
+  late Account _account;
+
   final Map<String, List<String>> menuOptions = {
     'SOUND': ['ON', 'OFF', 'VIBRATE'],
     'BRIGHTNESS': ['AUTO', 'LIGHT', 'DARK'],
   };
 
-  // Profile customization questions
   final List<String> questions = [
     'FAVORITE BINGE SHOW',
     'YOU CAN ALWAYS FIND ME...',
@@ -40,16 +43,38 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _prefsFuture = SharedPreferences.getInstance();
+    _client = Client()
+      .setEndpoint('https://fra.cloud.appwrite.io/v1')
+      .setProject('68311c8b000a47b14944');
+    _account = Account(_client);
     _loadPreferences();
     _loadUserData();
   }
   
   Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    try {
+      final models.User user = await _account.get();
       setState(() {
-        _userName = user.displayName ?? 'Guest';
+        _userName = user.name.isNotEmpty ? user.name : 'Guest';
       });
+    } on AppwriteException {
+      setState(() {
+        _userName = 'Guest';
+      });
+    }
+  }
+
+  Future<void> _logout() async {
+    try {
+      await _account.deleteSession(sessionId: 'current');
+    } catch (_) {
+      // Ignore errors, proceed to login page
+    }
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
     }
   }
 
@@ -135,11 +160,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.logout_rounded, color: Color(0xFF282828)),
-                      onPressed: () => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      ),
+                      icon: const Icon(Icons.logout_rounded, color: Color(0xFF282828)),
+                      onPressed: _logout,
                     ),
                   ],
                 ),
@@ -169,7 +191,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           fontSize: 18,
                         ),
                       ),
-                      
                     ],
                   ),
                 ),
@@ -220,13 +241,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     maxLines: null,
                     decoration: InputDecoration(
-                      border: UnderlineInputBorder(
+                      border: const UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF282828)),
                       ),
-                      enabledBorder: UnderlineInputBorder(
+                      enabledBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF282828)),
                       ),
-                      focusedBorder: UnderlineInputBorder(
+                      focusedBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF282828)),
                       ),
                     ),
@@ -256,14 +277,14 @@ class CircleIndicatorPainter extends CustomPainter {
 
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 3;
-    
+
     final path = Path();
     path.addArc(
       Rect.fromCircle(center: center, radius: radius),
       0,
       2 * 3.14159,
     );
-    
+
     canvas.drawPath(path, paint);
   }
 

@@ -1,0 +1,92 @@
+[
+  {
+    "lesson_id": "lesson1",
+    "topic": "Art",
+    "lesson_title": "What is Art? (1)",
+    "type": "lesson_quiz",
+    "description": "Define art and its purposes (self-expression, communication, cultural preservation).",
+    "lesson_content": [
+      "01_01_01_01.png",
+      "01_01_01_02.png",
+      "01_01_01_03.png",
+      "01_01_01_04.png",
+      "01_01_01_05.png"
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
+    }
+  },
+  {
+    "lesson_id": "lesson2",
+    "topic": "Art",
+    "lesson_title": "What is Art? (2)",
+    "type": "lesson_quiz",
+    "description": "Explore different forms of art (painting, sculpture, architecture, etc.).",
+    "lesson_content": [
+      "01_01_02_01.png",
+      "01_01_02_02.png",
+      "01_01_02_03.png",
+      "01_01_02_04.png",
+      "01_01_02_05.png"
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
+    }
+  },
+  {
+    "lesson_id": "lesson3",
+    "topic": "Art",
+    "lesson_title": "What is Art? (3)",
+    "type": "lesson_quiz",
+    "description": "Discuss the subjective nature of art—what makes something 'art'?",
+    "lesson_content": [
+      "01_01_03_01.png",
+      "01_01_03_02.png",
+      "01_01_03_03.png",
+      "01_01_03_04.png",
+      "01_01_03_05.png"
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
+    }
+  },
+  {
+    "lesson_id": "lesson4",
+    "topic": "Art",
+    "lesson_title": "What is Art? (4)",
+    "type": "lesson_quiz",
+    "description": "Introduce aesthetics and basic art criticism.",
+    "lesson_content": [
+      "01_01_04_01.png",
+      "01_01_04_02.png",
+      "01_01_04_03.png",
+      "01_01_04_04.png",
+      "01_01_04_05.png"
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
+    }
+  },
+  {
+    "lesson_id": "lesson5",
+    "topic": "Art",
+    "lesson_title": "What is Art? (5)",
+    "type": "lesson_quiz",
+    "description": "Activity: Observe and describe a public domain artwork using sensory details.",
+    "lesson_content": [
+      "01_01_05_01.png",
+      "01_01_05_02.png",
+      "01_01_05_03.png",
+      "01_01_05_04.png",
+      "01_01_05_05.png"
+    ],
+    "quiz": {
+      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
+      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
+    }
+  }
+]

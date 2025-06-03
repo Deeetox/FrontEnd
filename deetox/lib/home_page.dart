@@ -1,120 +1,19 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as models;
 import 'interest_selection.dart' show getSavedLesson;
 import 'challenge_page.dart';
 import 'journaling_page.dart';
 import 'profile_page.dart';
 
-final List<Map<String, dynamic>> jsonData = [
-  {
-    "lesson_id": "lesson1",
-    "topic": "Art",
-    "lesson_title": "What is Art? (1)",
-    "type": "lesson_quiz",
-    "description": "Define art and its purposes (self-expression, communication, cultural preservation).",
-    "lesson_content": [
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_1.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_2.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_3.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_4.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Define art and its purposes selfexpression communication cultural preservation_slide_5.png",
-    ],
-    "quiz": {
-      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
-      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
-    }
-  },
-  {
-    "lesson_id": "lesson2",
-    "topic": "Art",
-    "lesson_title": "What is Art? (2)",
-    "type": "lesson_quiz",
-    "description": "Explore different forms of art (painting, sculpture, architecture, etc.).",
-    "lesson_content": [
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_1.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_2.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_3.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_4.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Explore different forms of art painting sculpture architecture etc_slide_5.png",
-    ],
-    "quiz": {
-      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
-      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
-    }
-  },
-  {
-    "lesson_id": "lesson3",
-    "topic": "Art",
-    "lesson_title": "What is Art? (3)",
-    "type": "lesson_quiz",
-    "description": "Discuss the subjective nature of art—what makes something 'art'?",
-    "lesson_content": [
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_1.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_2.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_3.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_4.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Discuss the subjective nature of artwhat makes something art_slide_5.png",
-    ],
-    "quiz": {
-      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
-      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
-    }
-  },
-  {
-    "lesson_id": "lesson4",
-    "topic": "Art",
-    "lesson_title": "What is Art? (4)",
-    "type": "lesson_quiz",
-    "description": "Introduce aesthetics and basic art criticism.",
-    "lesson_content": [
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_1.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_2.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_3.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_4.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Introduce aesthetics and basic art criticism_slide_5.png",
-    ],
-    "quiz": {
-      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
-      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
-    }
-  },
-  {
-    "lesson_id": "lesson5",
-    "topic": "Art",
-    "lesson_title": "What is Art? (5)",
-    "type": "lesson_quiz",
-    "description": "Activity: Observe and describe a public domain artwork using sensory details.",
-    "lesson_content": [
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_1.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_2.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_3.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_4.png",
-      "assets/Unit 1 Introduction to Art_Week 1 What is Art_Activity Observe and describe a public domain artwork using sensory details_slide_5.png",
-    ],
-    "quiz": {
-      "What color is a mix of blue and yellow?": [["Green", "Purple", "Orange", "Pink"], 0],
-      "What does red often symbolize?": [["Peace", "Urgency", "Sadness", "Happiness"], 1]
-    }
-  },
-  {
-    "lesson_id": "lesson6",
-    "topic": "Journaling",
-    "lesson_title": "Reflective Writing",
-    "type": "journal",
-    "description": 
-        "Explore the benefits of journaling and how it can enhance self-awareness and mental health.",
-    "lesson_content": [
-      // Journaling lessons are represented as infographic pages for consistency
-      // No quiz content for journaling lessons
-      "assets/reflective_writing_page1.png",
-      "assets/reflective_writing_page2.png"
-    ],
-    // Journaling lessons do not include quizzes
-    // Keeping quiz empty for this type
-    "quiz": {}
-  }
-];
+const String APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+const String APPWRITE_PROJECT_ID = '68311c8b000a47b14944';
+const String BUCKET_ID = '68311d94003c6f0af2e6';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -140,7 +39,9 @@ class _HomePageState extends State<HomePage> {
 
   late PageController _lessonController;
   List<Map<String, dynamic>> _availableLessons = [];
-  int _currentLessonIndex = 0; // Use _currentLessonIndex instead of _currentLesson
+  int _currentLessonIndex = 0;
+
+  List<dynamic> _lessonJsonList = []; // Loaded from Appwrite
 
   @override
   void initState() {
@@ -154,12 +55,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        _userName = user.displayName ?? 'Guest';
-      });
-    }
+    // Replace with your Appwrite user fetch if needed
+    setState(() {
+      _userName = 'Guest';
+    });
   }
 
   Future<void> _loadLessonData() async {
@@ -170,39 +69,97 @@ class _HomePageState extends State<HomePage> {
         try {
           _lessonStartDate = DateTime.parse(savedData['startDate']!);
         } catch (e) {
-          print('Error parsing date: $e');
           _lessonStartDate = DateTime.now();
         }
-        _calculateAvailableLessons();
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      final selectedLesson = prefs.getString('selectedLesson') ?? 'lesson1';
+      final lessonFileName = '$selectedLesson.json';
+
+      try {
+        final lessonJson = await _fetchAndCacheLessonJson(lessonFileName);
+        setState(() {
+          if (lessonJson is List) {
+            _lessonJsonList = lessonJson;
+          } else if (lessonJson is Map && lessonJson['lessons'] is List) {
+            _lessonJsonList = lessonJson['lessons'];
+          } else {
+            _lessonJsonList = [lessonJson];
+          }
+        });
+        _calculateAvailableLessons();
+      } catch (e) {
+        // Handle error (show dialog, etc)
+        setState(() {
+          _lessonJsonList = [];
+        });
+      }
+    }
+  }
+
+  Future<dynamic> _fetchAndCacheLessonJson(String lessonFileName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/$lessonFileName';
+    final file = File(filePath);
+
+    if (await file.exists()) {
+      final contents = await file.readAsString();
+      return json.decode(contents);
+    }
+
+    final client = Client()
+      ..setEndpoint(APPWRITE_ENDPOINT)
+      ..setProject(APPWRITE_PROJECT_ID);
+    final storage = Storage(client);
+
+    try {
+      final result = await storage.getFileDownload(
+        bucketId: BUCKET_ID,
+        fileId: lessonFileName,
+      );
+      await file.writeAsBytes(result);
+      final contents = await file.readAsString();
+      return json.decode(contents);
+    } catch (e) {
+      throw Exception('Failed to fetch lesson JSON: $e');
     }
   }
 
   void _calculateAvailableLessons() {
     List<Map<String, dynamic>> lessons = [];
 
-    if (_lessonStartDate != null) {
+    if (_lessonStartDate != null && _lessonJsonList.isNotEmpty) {
       final difference = selectedDate.difference(_lessonStartDate!).inDays;
-
-      if (difference >= 0 && difference < 5) {
-        var topicLessons = jsonData.where((lesson) =>
-            _selectedTopic != null &&
-            lesson['lesson_title']
-                .toString()
-                .toLowerCase()
-                .contains(_selectedTopic!.toLowerCase())).toList();
-        if (topicLessons.isNotEmpty && topicLessons.length > difference) {
-          lessons.add(topicLessons[difference]);
+      if (difference >= 0 && difference < _lessonJsonList.length) {
+        final lesson = _lessonJsonList[difference];
+        if (lesson is Map<String, dynamic>) {
+          lessons.add(lesson);
+        } else if (lesson is Map) {
+          lessons.add(Map<String, dynamic>.from(lesson));
         }
       }
     }
-    lessons.addAll(jsonData.where((lesson) => lesson['topic'] == 'Journaling'));
-    print('Available Lessons: $lessons');
+
+    bool hasJournaling = lessons.any((l) => (l['topic']?.toString().toLowerCase() ?? '') == 'journaling');
+    if (!hasJournaling) {
+      lessons.add({
+        "lesson_id": "journaling",
+        "topic": "Journaling",
+        "lesson_title": "Reflective Writing",
+        "type": "journal",
+        "description": "Explore the benefits of journaling and how it can enhance self-awareness and mental health.",
+        "lesson_content": [
+          "assets/reflective_writing_page1.png",
+          "assets/reflective_writing_page2.png"
+        ],
+        "quiz": {}
+      });
+    }
 
     setState(() {
       _availableLessons = lessons;
       _currentLessonIndex = 0;
-      // Initialize the topic title
       _updateTopicTitle();
     });
   }
@@ -333,7 +290,6 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 40),
-          // Weekdays row.
           Container(
             padding: const EdgeInsets.symmetric(vertical: 20),
             decoration: const BoxDecoration(
@@ -531,7 +487,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            lesson['description'],
+                            lesson['description'] ?? '',
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               fontSize: 14,
@@ -546,7 +502,7 @@ class _HomePageState extends State<HomePage> {
                     onPageChanged: (index) {
                       setState(() {
                         _currentLessonIndex = index;
-                        _updateTopicTitle(); // Call it here!
+                        _updateTopicTitle();
                       });
                     },
                   ),

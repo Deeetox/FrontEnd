@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'time_selection.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as models;
 import 'home_page.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize any other services you need here (e.g. NotificationService)
   await NotificationService.initialize();
   runApp(const MyApp());
 }
@@ -35,18 +32,31 @@ class MyApp extends StatelessWidget {
   }
 
   Widget _handleAuthRedirect() {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+    return FutureBuilder<bool>(
+      future: _isLoggedIn(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        if (snapshot.hasData) {
+        if (snapshot.data == true) {
           return const HomePage();
         }
         return const WelcomeScreen();
       },
     );
+  }
+
+  Future<bool> _isLoggedIn() async {
+    final client = Client()
+      ..setEndpoint('https://fra.cloud.appwrite.io/v1')
+      ..setProject('68311c8b000a47b14944');
+    final account = Account(client);
+    try {
+      await account.getSession(sessionId: 'current');
+      return true;
+    } on AppwriteException {
+      return false;
+    }
   }
 }
 
@@ -100,7 +110,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       future: _imageLoadingFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while waiting for the image to load
           return const Scaffold(
             backgroundColor: Color(0xFFF9F6EF),
             body: Center(
@@ -108,7 +117,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           );
         } else if (snapshot.hasError) {
-          // Handle image loading error
           return Scaffold(
             backgroundColor: const Color(0xFFF9F6EF),
             body: const Center(
@@ -120,7 +128,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           );
         }
 
-        // Once the image is loaded, show the main content
         return Scaffold(
           backgroundColor: const Color(0xFFF9F6EF),
           body: Stack(
@@ -169,7 +176,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       )),
                 ),
               ),
-
               // DEETOX Text
               Positioned(
                 left: 50,

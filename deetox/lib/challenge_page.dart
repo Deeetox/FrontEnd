@@ -28,12 +28,15 @@ class _ChallengePageState extends State<ChallengePage> {
   }
 
   // Build lesson content as full-screen images
-  Widget buildLessonContent(String imagePath) {
+  Widget buildLessonContent(String fileId) {
+  // Build Appwrite preview URL for the fileId
+    final imageUrl =
+        'https://fra.cloud.appwrite.io/v1/storage/buckets/68311d94003c6f0af2e6/files/$fileId/preview?project=68311c8b000a47b14944';
+
     return GestureDetector(
       onTapDown: (details) {
         final screenWidth = MediaQuery.of(context).size.width;
         if (details.localPosition.dx < screenWidth / 2) {
-          // Tap left
           if (currentIndex > 0) {
             _pageController.previousPage(
               duration: Duration(milliseconds: 300),
@@ -41,7 +44,6 @@ class _ChallengePageState extends State<ChallengePage> {
             );
           }
         } else {
-          // Tap right
           if (currentIndex < widget.jsonData['lesson_content'].length + widget.jsonData['quiz'].length - 1) {
             _pageController.nextPage(
               duration: Duration(milliseconds: 300),
@@ -51,15 +53,23 @@ class _ChallengePageState extends State<ChallengePage> {
         }
       },
       child: Center(
-        child: Image.asset(
-          imagePath,
+        child: Image.network(
+          imageUrl,
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(child: CircularProgressIndicator());
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Center(child: Icon(Icons.broken_image, size: 80, color: Colors.grey));
+          },
         ),
       ),
     );
   }
+
 
   // Build quiz content with immediate feedback
   Widget buildQuizContent(String question, List<String> choices, int correctAnswerIndex, int questionIndex) {

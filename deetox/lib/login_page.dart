@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appwrite/appwrite.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
 
@@ -14,17 +14,32 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  late Client _client;
+  late Account _account;
+
+  @override
+  void initState() {
+    super.initState();
+    _client = Client()
+      .setEndpoint('https://fra.cloud.appwrite.io/v1')
+      .setProject('68311c8b000a47b14944');
+    _account = Account(_client);
+  }
 
   Future<void> _login() async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      await _account.createEmailSession(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } on AppwriteException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: ${e.message ?? e.toString()}')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               width: double.infinity,
               height: 48,
-              color: Color(0xFF282828),
+              color: const Color(0xFF282828),
               child: TextButton(
                 onPressed: _login,
                 child: const Text(
