@@ -1,0 +1,6 @@
+appwrite
+ollama
+diffusers
+pydantic
+pillow
+torch
