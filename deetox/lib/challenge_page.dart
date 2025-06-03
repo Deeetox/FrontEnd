@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Import your HomePage
+import 'package:appwrite/appwrite.dart';
+import 'home_page.dart'; // Import constants from HomePage
 
 class ChallengePage extends StatefulWidget {
   final Map<String, dynamic> jsonData;
@@ -27,46 +28,78 @@ class _ChallengePageState extends State<ChallengePage> {
     super.dispose();
   }
 
-  // Build lesson content as full-screen images
-  Widget buildLessonContent(String fileId) {
-  // Build Appwrite preview URL for the fileId
-    final imageUrl =
-        'https://fra.cloud.appwrite.io/v1/storage/buckets/68311d94003c6f0af2e6/files/$fileId/preview?project=68311c8b000a47b14944';
 
-    return GestureDetector(
-      onTapDown: (details) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        if (details.localPosition.dx < screenWidth / 2) {
-          if (currentIndex > 0) {
-            _pageController.previousPage(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
-        } else {
-          if (currentIndex < widget.jsonData['lesson_content'].length + widget.jsonData['quiz'].length - 1) {
-            _pageController.nextPage(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
+  // Resolve the appropriate image URL. If [imagePath] is a full URL or an
+  // asset path, return it directly. Otherwise construct a preview URL using the
+  // file ID, which follows the lesson image naming scheme.
+  Future<String?> _resolveImageUrl(String imagePath) async {
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+
+    if (imagePath.startsWith('assets/')) {
+      // Asset image; no network URL needed
+      return null;
+    }
+
+    // The imagePath is the Appwrite file ID (e.g. 01_01_01_01.png).
+    return '$APPWRITE_ENDPOINT/storage/buckets/$BUCKET_ID/files/'
+        '$imagePath/preview?project=$APPWRITE_PROJECT_ID';
+  }
+
+  // Build lesson content as full-screen images
+  Widget buildLessonContent(String imagePath) {
+    return FutureBuilder<String?>(
+      future: _resolveImageUrl(imagePath),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
         }
+        final imageUrl = snapshot.data;
+        final imageWidget = imageUrl != null
+            ? Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(Icons.broken_image, size: 80, color: Colors.grey),
+                  );
+                },
+              )
+            : Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              );
+        return GestureDetector(
+          onTapDown: (details) {
+            final screenWidth = MediaQuery.of(context).size.width;
+            if (details.localPosition.dx < screenWidth / 2) {
+              if (currentIndex > 0) {
+                _pageController.previousPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            } else {
+              if (currentIndex < widget.jsonData['lesson_content'].length + widget.jsonData['quiz'].length - 1) {
+                _pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            }
+          },
+          child: Center(child: imageWidget),
+        );
       },
-      child: Center(
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(child: CircularProgressIndicator());
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return Center(child: Icon(Icons.broken_image, size: 80, color: Colors.grey));
-          },
-        ),
-      ),
     );
   }
 
