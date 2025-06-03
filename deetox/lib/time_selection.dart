@@ -348,8 +348,7 @@ class _TimeSelectionPageState extends State<TimeSelectionPage>
 
       tz.TZDateTime scheduledTime = _nextTimeOfDay(time.hour, time.minute);
 
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      await flutterLocalNotificationsPlugin.zonedSchedule(
+      await _notifications.zonedSchedule(
         0,
         'The Time Hath Come.',
         "It's time!",
