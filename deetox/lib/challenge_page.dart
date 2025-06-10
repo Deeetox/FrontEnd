@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home_page.dart'; // Import constants from HomePage
 
 class ChallengePage extends StatefulWidget {
@@ -15,17 +17,54 @@ class _ChallengePageState extends State<ChallengePage> {
   late PageController _pageController;
   int currentIndex = 0;
   Map<int, bool> answeredQuestions = {};
+  Map<int, int> selectedAnswers = {};
+  SharedPreferences? _prefs;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+    _loadProgress();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProgress() async {
+    _prefs = await SharedPreferences.getInstance();
+    final progressString = _prefs!.getString('lessonProgress');
+    if (progressString != null) {
+      final Map<String, dynamic> progress = json.decode(progressString);
+      final lessonId = widget.jsonData['lesson_id'];
+      final lessonProgress = progress[lessonId];
+      if (lessonProgress != null && lessonProgress['answers'] is Map) {
+        final answersMap = Map<String, dynamic>.from(lessonProgress['answers']);
+        setState(() {
+          selectedAnswers = answersMap.map((k, v) => MapEntry(int.parse(k), v as int));
+          answeredQuestions = {for (var key in selectedAnswers.keys) key: true};
+        });
+      }
+    }
+  }
+
+  Future<void> _saveProgress() async {
+    if (_prefs == null) {
+      _prefs = await SharedPreferences.getInstance();
+    }
+    final lessonId = widget.jsonData['lesson_id'];
+    Map<String, dynamic> progress = {};
+    final existing = _prefs!.getString('lessonProgress');
+    if (existing != null) {
+      progress = json.decode(existing);
+    }
+    progress[lessonId] = {
+      'answers': selectedAnswers.map((k, v) => MapEntry(k.toString(), v)),
+      'completed': selectedAnswers.length == (widget.jsonData['quiz'] as Map).length,
+    };
+    await _prefs!.setString('lessonProgress', json.encode(progress));
   }
 
 
@@ -145,12 +184,15 @@ class _ChallengePageState extends State<ChallengePage> {
           ...choices.asMap().entries.map((entry) {
             final index = entry.key;
             final choice = entry.value;
+            final isSelected = selectedAnswers[questionIndex] == index;
 
             return GestureDetector(
               onTap: () {
                 setState(() {
                   answeredQuestions[questionIndex] = true;
+                  selectedAnswers[questionIndex] = index;
                 });
+                _saveProgress();
 
                 final isCorrect = index == correctAnswerIndex;
 
@@ -195,7 +237,8 @@ class _ChallengePageState extends State<ChallengePage> {
                   ),
                 );
               },
-              child: Padding(
+              child: Container(
+                color: isSelected ? Colors.grey.shade300 : null,
                 padding: const EdgeInsets.symmetric(vertical: 5.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

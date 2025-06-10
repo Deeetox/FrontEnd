@@ -42,6 +42,7 @@ class _HomePageState extends State<HomePage> {
   int _currentLessonIndex = 0;
 
   List<dynamic> _lessonJsonList = []; // Loaded from Appwrite
+  Map<String, dynamic> _progressMap = {};
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _HomePageState extends State<HomePage> {
     _lessonController = PageController(initialPage: 0);
     _loadUserData();
     _loadLessonData();
+    _loadProgress();
     _baseMonth = DateTime.now();
     displayedMonth = _baseMonth;
     _calendarController = PageController(initialPage: _initialPage);
@@ -123,6 +125,16 @@ class _HomePageState extends State<HomePage> {
       return json.decode(contents);
     } catch (e) {
       throw Exception('Failed to fetch lesson JSON: $e');
+    }
+  }
+
+  Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final progressString = prefs.getString('lessonProgress');
+    if (progressString != null) {
+      setState(() {
+        _progressMap = json.decode(progressString);
+      });
     }
   }
 
@@ -366,6 +378,18 @@ class _HomePageState extends State<HomePage> {
             currentDate.month == selectedDate.month &&
             currentDate.day == selectedDate.day;
 
+        bool isCompleted = false;
+        if (_lessonStartDate != null && _lessonJsonList.isNotEmpty) {
+          final diff = currentDate.difference(_lessonStartDate!).inDays;
+          if (diff >= 0 && diff < _lessonJsonList.length) {
+            final lesson = _lessonJsonList[diff];
+            if (lesson is Map && lesson['lesson_id'] != null) {
+              final lessonId = lesson['lesson_id'];
+              isCompleted = _progressMap[lessonId]?['completed'] == true;
+            }
+          }
+        }
+
         return GestureDetector(
           onTap: () {
             setState(() {
@@ -386,13 +410,29 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             child: Center(
-              child: Text(
-                day.toString(),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: const Color(0xFF282828),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    day.toString(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: const Color(0xFF282828),
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  if (isCompleted)
+                    Container(
+                      margin: const EdgeInsets.only(top: 2),
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
